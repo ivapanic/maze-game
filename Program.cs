@@ -17,9 +17,9 @@ namespace MazeForm
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			//Application.Run(new MazeGame());
-			Maze maze = new Maze(31);
+			Maze maze = new Maze(15);
 			maze.mazeGeneration();
-			maze.print();
+			maze.printFile();
 		}
 	}
 }

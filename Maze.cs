@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Deployment.Internal;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Remoting.Messaging;
@@ -93,9 +94,8 @@ namespace MazeForm
                 if (wall._row == row && wall._column == column)
                 {
                     wall._isWall = false;
-                    wall._isVisited = true;
+                    wall._isVisited = false;
                     _mazeCells.Add(wall);
-                   
                 }
             }
 
@@ -107,6 +107,7 @@ namespace MazeForm
         {
             _cellStack.Push(_mazeCells.ElementAt(0));
             _mazeCells.ElementAt(0)._isVisited = true;
+           
 
             do
             {
@@ -135,7 +136,7 @@ namespace MazeForm
             }
         }
 
-        public void print()
+        public void printConsole()
         {
             mazeVisualisation(_maze);
 
@@ -149,6 +150,20 @@ namespace MazeForm
             }
         }
 
-      
+        public void printFile()
+        {
+            mazeVisualisation(_maze);
+            using (var writer = File.CreateText("output.txt"))
+            {
+                for (int i = 0; i < _length; ++i)
+                {
+                    for (int j = 0; j < _length; ++j)
+                    {
+                        writer.Write(_maze[i, j]);
+                    }
+                    writer.WriteLine();
+                }
+            }
+        }
     }
 }
