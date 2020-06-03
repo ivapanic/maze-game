@@ -34,7 +34,7 @@ namespace MazeForm
 
         public override string ToString()
         {
-            return _isWall ? " x " : " - ";
+            return _isWall ? "X" : "-";
         }
     }
 }

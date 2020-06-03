@@ -15,19 +15,17 @@ namespace MazeForm
     class Maze
     {
 
-        int _length;
+        public static int _length = 31;
+        public Cell[,] _maze;
+        public List<Cell> _mazeWalls;
         List<Cell> _mazeCells;
-        List<Cell> _mazeWalls;
         Cell _currentCell;
-        Cell[,] _maze;
         Stack<Cell> _cellStack;
 
         private Random _rand;
 
-        public Maze(int length)
+        public Maze()
         {
-            _length = length;
-
             _mazeCells = new List<Cell>();
             _mazeWalls = new List<Cell>();
 
@@ -67,7 +65,7 @@ namespace MazeForm
             northN = _currentCell._row - 2 > 0 ? _mazeCells.Find(cell => _currentCell._row - 2 == cell._row && _currentCell._column == cell._column) : null;
             southN = _currentCell._row + 2 < _length - 1 ? _mazeCells.Find(cell => _currentCell._row + 2 == cell._row && _currentCell._column == cell._column) : null;
             eastN = _currentCell._column + 2 < _length - 1 ? _mazeCells.Find(cell => _currentCell._row == cell._row && _currentCell._column + 2 == cell._column) : null;
-            westN = _currentCell._column - 2 < 0 ? _mazeCells.Find(cell => _currentCell._row == cell._row && _currentCell._column - 2 == cell._column) : null;
+            westN = _currentCell._column - 2 > 0 ? _mazeCells.Find(cell => _currentCell._row == cell._row && _currentCell._column - 2 == cell._column) : null;
 
             addNeighbour(neighbourCells, northN, southN, eastN, westN);
             int rand_index = _rand.Next(0, neighbourCells.Count);
@@ -94,30 +92,36 @@ namespace MazeForm
                 if (wall._row == row && wall._column == column)
                 {
                     wall._isWall = false;
-                    wall._isVisited = false;
-                    _mazeCells.Add(wall);
                 }
             }
-
             var toBeRemovedWall = _mazeWalls.Find(wall => !wall._isWall);
+            //toBeRemovedWall._isVisited = true;
+            _mazeCells.Add(toBeRemovedWall);
             _mazeWalls.Remove(toBeRemovedWall);
         }
 
         public void mazeGeneration()
         {
-            _cellStack.Push(_mazeCells.ElementAt(0));
-            _mazeCells.ElementAt(0)._isVisited = true;
-           
+            _currentCell = _mazeCells.ElementAt(0);
+            _cellStack.Push(_currentCell);
 
             do
             {
-                _currentCell = _cellStack.Pop();
+                _currentCell._isVisited = true;
                 Cell neighbourCell = getRandomNeighbour();
+
+                if (neighbourCell != null)
+                    removeTheWall(_currentCell, neighbourCell);
+
                 if (neighbourCell != null)
                 {
-                    removeTheWall(_currentCell, neighbourCell);
-                    neighbourCell._isVisited = true;
-                    _cellStack.Push(neighbourCell);
+                    _currentCell = neighbourCell;
+                    _cellStack.Push(_currentCell);
+                }
+                else
+                {
+                    if (_cellStack.Count > 0)
+                        _currentCell = _cellStack.Pop();
                 }
             } while (_cellStack.Count > 0);
         }
@@ -153,7 +157,7 @@ namespace MazeForm
         public void printFile()
         {
             mazeVisualisation(_maze);
-            using (var writer = File.CreateText("output.txt"))
+            using (var writer = File.CreateText(@".\output.txt"))
             {
                 for (int i = 0; i < _length; ++i)
                 {
