@@ -1,7 +1,7 @@
 # MazeGame
 
 A simple 2D maze game implemented using C# and Windows Forms. 
-recursive backtracking algorithm is used for maze generation.
+Recursive backtracking algorithm is used for maze generation.
 
 ![Game start](https://github.com/ivapanic/MazeGame/blob/master/screenshots/start.png)
 
