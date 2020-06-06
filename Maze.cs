@@ -17,7 +17,7 @@ namespace MazeForm
 
         public static int _length = 31;
         public Cell[,] _maze;
-        public List<Cell> _mazeWalls;
+        List<Cell> _mazeWalls;
         List<Cell> _mazeCells;
         Cell _currentCell;
         Stack<Cell> _cellStack;
@@ -50,10 +50,12 @@ namespace MazeForm
             _maze = new Cell[_length, _length];
         }
 
+
         void addNeighbour(List<Cell> neighbourCells, params Cell[] cells)
         {
             foreach (Cell cell in cells)
-            { if (cell != null)
+            {
+                if (cell != null)
                     if (cell._isVisited == false)
                         neighbourCells.Add(cell);
             }
@@ -95,12 +97,11 @@ namespace MazeForm
                 }
             }
             var toBeRemovedWall = _mazeWalls.Find(wall => !wall._isWall);
-            //toBeRemovedWall._isVisited = true;
             _mazeCells.Add(toBeRemovedWall);
             _mazeWalls.Remove(toBeRemovedWall);
         }
 
-        public void mazeGeneration()
+        public Cell[,] mazeGeneration()
         {
             _currentCell = _mazeCells.ElementAt(0);
             _cellStack.Push(_currentCell);
@@ -124,9 +125,11 @@ namespace MazeForm
                         _currentCell = _cellStack.Pop();
                 }
             } while (_cellStack.Count > 0);
+
+            return _maze;
         }
 
-        public void mazeVisualisation(Cell[,] _maze)
+         public void mazeVisualisation(Cell[,] _maze)
         {
             foreach (Cell wall in _mazeWalls)
             {
@@ -140,32 +143,33 @@ namespace MazeForm
             }
         }
 
-        public void printConsole()
+        public void print(String output)
         {
             mazeVisualisation(_maze);
-
-            for (int i = 0; i < _length; ++i)
+            if (output == "console")
             {
-                for (int j = 0; j < _length; ++j)
-                {
-                    Console.Write(_maze[i, j]);
-                }
-                Console.WriteLine();
-            }
-        }
 
-        public void printFile()
-        {
-            mazeVisualisation(_maze);
-            using (var writer = File.CreateText(@".\output.txt"))
-            {
                 for (int i = 0; i < _length; ++i)
                 {
                     for (int j = 0; j < _length; ++j)
                     {
-                        writer.Write(_maze[i, j]);
+                        Console.Write(_maze[i, j]);
                     }
-                    writer.WriteLine();
+                    Console.WriteLine();
+                }
+            }
+            else 
+            {
+                using (var writer = File.CreateText(output))
+                {
+                    for (int i = 0; i < _length; ++i)
+                    {
+                        for (int j = 0; j < _length; ++j)
+                        {
+                            writer.Write(_maze[i, j]);
+                        }
+                        writer.WriteLine();
+                    }
                 }
             }
         }

@@ -14,44 +14,171 @@ namespace MazeForm
     public partial class MazeGame : Form
     {
         public String[] text;
+        Button[,] mazeButtons = new Button[Maze._length, Maze._length];
+        List<Button> visitedButtons = new List<Button>();
+        Maze maze;
+
+
         public MazeGame()
         {
             InitializeComponent();
-            Maze maze = new Maze();
-            maze.mazeGeneration();
-            //maze.printConsole();
-            maze.printFile();
-            text = File.ReadAllLines(@".\output.txt");
         }
 
-        private void tableLayoutPanel1_CellPaint(object sender, TableLayoutCellPaintEventArgs e)
+        public void mazeInit()
         {
-            if (text[e.Column][e.Row] == 'X')
+            Maze maze = new Maze();
+            maze.mazeGeneration();
+            string filename = @".\output.txt";
+            maze.print(filename);
+            text = File.ReadAllLines(filename);
+        }
+
+        private void setButtonColor(Button button, Color foreColor, Color backColor, Color borderColor)
+        {
+            button.BackColor = backColor;
+            button.ForeColor = foreColor;
+            button.FlatAppearance.BorderColor = borderColor;
+        }
+
+        private void btn_MouseEnter(object sender, EventArgs e)
+        {
+            var btn = (Button)sender;
+            if (btn.BackColor == Color.Blue)
             {
-                if (e.Column == 1 && e.Row == 0)
-                    e.Graphics.FillRectangle(Brushes.Red, e.CellBounds);
-                else if (e.Column == Maze._length - 2 && e.Row == Maze._length - 1)
-                    e.Graphics.FillRectangle(Brushes.Blue, e.CellBounds);
-                else
-                    e.Graphics.FillRectangle(Brushes.Black, e.CellBounds);
+                enableAllButtons(true);
+            }
+
+            btn.BackColor = btn.BackColor == Color.Black ? Color.Red : Color.BlueViolet;
+
+            if (btn.BackColor == Color.BlueViolet)
+            {
+                visitedButtons.Add(btn);
+            }
+
+            else if (btn.BackColor == Color.Red)
+            {
+                generateButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                setButtonColor(generateButton, generateButton.ForeColor, Color.MediumVioletRed, generateButton.FlatAppearance.BorderColor);
+                generateButton.Text = "YOU LOST";
+                enableAllButtons(false);
+            }
+
+            else if (btn.BackColor == Color.ForestGreen)
+            {
+                bool isFinished = true;
+                Button last = visitedButtons.First();
+                foreach (Button button in visitedButtons)
+                {
+                    if (Math.Abs(button.Location.X - last.Location.X) > 1 && Math.Abs(button.Location.Y * last.Location.Y) > 1)
+                    {
+                        isFinished = false;
+                    }
+                    last = button;
+                }
+                if (isFinished)
+                {
+                    generateButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                    setButtonColor(generateButton, generateButton.ForeColor, Color.LightGreen, generateButton.FlatAppearance.BorderColor);
+                    generateButton.Text = "YOU WON";
+                }
+
             }
         }
 
-        private void MazeGame_Load(object sender, EventArgs e)
+        private void btn_MouseLeave(object sender, EventArgs e)
         {
-
+            var btn = (Button)sender;
+            if (btn.BackColor != Color.Red)
+            {
+                btn.BackColor = btn.FlatAppearance.BorderColor;
+            }
         }
 
-        private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
+        private void enableAllButtons(bool enable)
         {
-
+ 
+            foreach (Button button in mazeButtons)
+            {
+                if (enable)
+                    button.Enabled = true;
+                else
+                    button.Enabled = false;
+            }
+        
         }
 
-        private void optionPanel_Paint(object sender, PaintEventArgs e)
-        {
 
+        private void showMaze()
+        {
+            for (int i = 0; i < Maze._length; ++i)
+            {
+                for (int j = 0; j < Maze._length; ++j)
+                {
+                    Button button = new Button();
+                    button.FlatStyle = FlatStyle.Flat;
+                    button.Height = 20; button.Width = 20;
+                    button.Margin = new Padding(0, 0, 0, 0);
+                    button.Location = new Point(i * 20, j * 20);
+                    button.Enabled = false;
+
+                    if (text[i][j] == 'X')
+                    {
+                        if (i == 1 && j == 0)
+                        {
+                            setButtonColor(button, Color.Blue, Color.Blue, Color.Blue);
+                            button.Enabled = true;
+
+                        }
+                        else if (i == Maze._length - 2 && j == Maze._length - 1)
+                        {
+                            setButtonColor(button, Color.ForestGreen, Color.ForestGreen, Color.ForestGreen);
+                        }
+                        else
+                        {
+                            setButtonColor(button, Color.Black, Color.Black, Color.Black);
+                        }
+                    }
+                    else
+                    {
+                        setButtonColor(button, Color.White, Color.White, Color.White);
+                    }
+                    mazeButtons[i, j] = button;
+                    mazePanel.Controls.Add(button);
+                }
+            }
+            foreach (Button btn in mazeButtons)
+            {
+                btn.MouseEnter += btn_MouseEnter;
+                btn.MouseLeave += btn_MouseLeave;
+            }
         }
+
+        private void generateButton_Click(object sender, EventArgs e)
+        {
+            mazeInit();
+            showMaze();
+
+            generateButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            generateButton.Text = "Try to get to the end of the maze using you cursor without touching any walls!";
+
+            if(generateButton.Text == "YOU LOST") //to do - restart option
+            {
+              /* Array.Clear(mazeButtons, 0, mazeButtons.Length);
+               mazeInit();
+               showMaze();
+               mazePanel.Refresh();*/
+            }
+
+       }
+
+        private void generateButton_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                generateButton.PerformClick();
+            }
+        }
+     
     }
-
 }
 
