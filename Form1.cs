@@ -15,8 +15,6 @@ namespace MazeForm
     {
         public String[] text;
         Button[,] mazeButtons = new Button[Maze._length, Maze._length];
-        List<Button> visitedButtons = new List<Button>();
-        Maze maze;
 
 
         public MazeGame()
@@ -50,12 +48,8 @@ namespace MazeForm
 
             btn.BackColor = btn.BackColor == Color.Black ? Color.Red : Color.BlueViolet;
 
-            if (btn.BackColor == Color.BlueViolet)
-            {
-                visitedButtons.Add(btn);
-            }
 
-            else if (btn.BackColor == Color.Red)
+            if (btn.BackColor == Color.Red)
             {
                 generateButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
                 setButtonColor(generateButton, generateButton.ForeColor, Color.MediumVioletRed, generateButton.FlatAppearance.BorderColor);
@@ -63,24 +57,13 @@ namespace MazeForm
                 enableAllButtons(false);
             }
 
-            else if (btn.BackColor == Color.ForestGreen)
+            if (btn.ForeColor == Color.ForestGreen)
             {
-                bool isFinished = true;
-                Button last = visitedButtons.First();
-                foreach (Button button in visitedButtons)
-                {
-                    if (Math.Abs(button.Location.X - last.Location.X) > 1 && Math.Abs(button.Location.Y * last.Location.Y) > 1)
-                    {
-                        isFinished = false;
-                    }
-                    last = button;
-                }
-                if (isFinished)
-                {
-                    generateButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                    setButtonColor(generateButton, generateButton.ForeColor, Color.LightGreen, generateButton.FlatAppearance.BorderColor);
-                    generateButton.Text = "YOU WON";
-                }
+                generateButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                setButtonColor(generateButton, generateButton.ForeColor, Color.LightGreen, generateButton.FlatAppearance.BorderColor);
+                generateButton.Text = "YOU WON";
+                enableAllButtons(false);
+
 
             }
         }
