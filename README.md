@@ -13,3 +13,4 @@ Goal of the game is to get to the end of the maze using cursor and arrows (to be
 ![Game win](https://github.com/ivapanic/MazeGame/blob/master/screenshots/win.png)
 
 6/6/2020: todo - restart game option, levels, moving using arrows
+6/9/2020: todo - moving using arrows, levels

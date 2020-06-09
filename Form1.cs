@@ -15,6 +15,7 @@ namespace MazeForm
     {
         public String[] text;
         Button[,] mazeButtons = new Button[Maze._length, Maze._length];
+        Maze maze;
 
 
         public MazeGame()
@@ -24,7 +25,7 @@ namespace MazeForm
 
         public void mazeInit()
         {
-            Maze maze = new Maze();
+            maze = new Maze();
             maze.mazeGeneration();
             string filename = @".\output.txt";
             maze.print(filename);
@@ -46,34 +47,27 @@ namespace MazeForm
                 enableAllButtons(true);
             }
 
-            btn.BackColor = btn.BackColor == Color.Black ? Color.Red : Color.BlueViolet;
+            if (btn.BackColor == Color.Black)
+                btn.BackColor = Color.Red;
+            else
+                setButtonColor(btn, Color.BlueViolet, Color.BlueViolet, Color.BlueViolet);
+           
 
 
             if (btn.BackColor == Color.Red)
             {
-                generateButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                setButtonColor(generateButton, generateButton.ForeColor, Color.MediumVioletRed, generateButton.FlatAppearance.BorderColor);
-                generateButton.Text = "YOU LOST";
+                controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+               // setButtonColor(controlButton, controlButton.ForeColor, Color.MediumVioletRed, controlButton.FlatAppearance.BorderColor);
+                controlButton.Text = "YOU LOST\nRestart?";
                 enableAllButtons(false);
             }
 
             if (btn.ForeColor == Color.ForestGreen)
             {
-                generateButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                setButtonColor(generateButton, generateButton.ForeColor, Color.LightGreen, generateButton.FlatAppearance.BorderColor);
-                generateButton.Text = "YOU WON";
+                controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+              //  setButtonColor(controlButton, controlButton.ForeColor, Color.LightGreen, controlButton.FlatAppearance.BorderColor);
+                controlButton.Text = "YOU WON\nRestart?";
                 enableAllButtons(false);
-
-
-            }
-        }
-
-        private void btn_MouseLeave(object sender, EventArgs e)
-        {
-            var btn = (Button)sender;
-            if (btn.BackColor != Color.Red)
-            {
-                btn.BackColor = btn.FlatAppearance.BorderColor;
             }
         }
 
@@ -132,36 +126,42 @@ namespace MazeForm
             foreach (Button btn in mazeButtons)
             {
                 btn.MouseEnter += btn_MouseEnter;
-                btn.MouseLeave += btn_MouseLeave;
             }
         }
 
-        private void generateButton_Click(object sender, EventArgs e)
+        private void controlButton_Click(object sender, EventArgs e)
         {
-            mazeInit();
-            showMaze();
+            mazePanel.Controls.Clear();
 
-            generateButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            generateButton.Text = "Try to get to the end of the maze using you cursor without touching any walls!";
-
-            if(generateButton.Text == "YOU LOST") //to do - restart option
+            if (controlButton.Text == "YOU LOST" || controlButton.Text == "YOU WON")
             {
-              /* Array.Clear(mazeButtons, 0, mazeButtons.Length);
-               mazeInit();
-               showMaze();
-               mazePanel.Refresh();*/
+               Array.Clear(mazeButtons, 0, mazeButtons.Length);
+               mazePanel.Refresh();
             }
 
-       }
+            mazeInit();
+            showMaze();
+            controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            controlButton.Text = "Try to get to the end of the maze using you cursor without touching any walls!";
+        }
 
-        private void generateButton_KeyDown(object sender, KeyEventArgs e)
+        private void controlButton_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                generateButton.PerformClick();
+                controlButton.PerformClick();
             }
         }
-     
+
+        private void MazeGame_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void mazePanel_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }
 
