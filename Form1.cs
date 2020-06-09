@@ -50,7 +50,8 @@ namespace MazeForm
             if (btn.BackColor == Color.Black)
                 btn.BackColor = Color.Red;
             else
-                setButtonColor(btn, Color.BlueViolet, Color.BlueViolet, Color.BlueViolet);
+                if (!(btn.BackColor == Color.ForestGreen))
+                    setButtonColor(btn, Color.BlueViolet, Color.BlueViolet, Color.BlueViolet);
            
 
 
@@ -62,7 +63,7 @@ namespace MazeForm
                 enableAllButtons(false);
             }
 
-            if (btn.ForeColor == Color.ForestGreen)
+            else if (btn.BackColor == Color.ForestGreen)
             {
                 controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
               //  setButtonColor(controlButton, controlButton.ForeColor, Color.LightGreen, controlButton.FlatAppearance.BorderColor);
