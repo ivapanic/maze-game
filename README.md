@@ -1,4 +1,4 @@
-# MazeGame
+# Maze game
 
 A simple 2D maze game implemented using C# and Windows Forms. 
 Recursive backtracking algorithm is used for maze generation.
