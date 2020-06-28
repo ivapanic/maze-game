@@ -15,28 +15,33 @@ namespace MazeForm
     class Maze
     {
 
-        public static int _length = 31;
-        public Cell[,] _maze;
+        public static int length = 31;
+        private Cell[,] _maze;
         List<Cell> _mazeWalls;
         List<Cell> _mazeCells;
         Cell _currentCell;
         Stack<Cell> _cellStack;
 
         private Random _rand;
+        
+        public Cell[,] getMaze()
+        {
+            return _maze;
+        }
 
         public Maze()
         {
             _mazeCells = new List<Cell>();
             _mazeWalls = new List<Cell>();
 
-            for (var i = 0; i < _length; ++i)
+            for (var i = 0; i < length; ++i)
             {
-                for (var j = 0; j < _length; ++j)
+                for (var j = 0; j < length; ++j)
                 {
                     Cell cell = new Cell(i, j);
                     if (i % 2 == 0 || j % 2 == 0)
                     {
-                        cell._isWall = true;
+                        cell.setWall(true);
                         _mazeWalls.Add(cell);
                     }
                     else
@@ -47,7 +52,7 @@ namespace MazeForm
             }
             _rand = new Random();
             _cellStack = new Stack<Cell>();
-            _maze = new Cell[_length, _length];
+            _maze = new Cell[length, length];
         }
 
 
@@ -56,7 +61,7 @@ namespace MazeForm
             foreach (Cell cell in cells)
             {
                 if (cell != null)
-                    if (cell._isVisited == false)
+                    if (cell.isVisited() == false)
                         neighbourCells.Add(cell);
             }
         }
@@ -64,10 +69,10 @@ namespace MazeForm
         {
             List<Cell> neighbourCells = new List<Cell>();
             Cell southN, northN, eastN, westN;
-            northN = _currentCell._row - 2 > 0 ? _mazeCells.Find(cell => _currentCell._row - 2 == cell._row && _currentCell._column == cell._column) : null;
-            southN = _currentCell._row + 2 < _length - 1 ? _mazeCells.Find(cell => _currentCell._row + 2 == cell._row && _currentCell._column == cell._column) : null;
-            eastN = _currentCell._column + 2 < _length - 1 ? _mazeCells.Find(cell => _currentCell._row == cell._row && _currentCell._column + 2 == cell._column) : null;
-            westN = _currentCell._column - 2 > 0 ? _mazeCells.Find(cell => _currentCell._row == cell._row && _currentCell._column - 2 == cell._column) : null;
+            northN = _currentCell.getRow() - 2 > 0 ? _mazeCells.Find(cell => _currentCell.getRow() - 2 == cell.getRow() && _currentCell.getColumn() == cell.getColumn()) : null;
+            southN = _currentCell.getRow() + 2 < length - 1 ? _mazeCells.Find(cell => _currentCell.getRow() + 2 == cell.getRow() && _currentCell.getColumn() == cell.getColumn()) : null;
+            eastN = _currentCell.getColumn() + 2 < length - 1 ? _mazeCells.Find(cell => _currentCell.getRow() == cell.getRow() && _currentCell.getColumn() + 2 == cell.getColumn()) : null;
+            westN = _currentCell.getColumn() - 2 > 0 ? _mazeCells.Find(cell => _currentCell.getRow() == cell.getRow() && _currentCell.getColumn() - 2 == cell.getColumn()) : null;
 
             addNeighbour(neighbourCells, northN, southN, eastN, westN);
             int rand_index = _rand.Next(0, neighbourCells.Count);
@@ -77,26 +82,26 @@ namespace MazeForm
 
         void removeTheWall(Cell currentCell, Cell neighbourCell)
         {
-            int row = currentCell._row;
-            int column = _currentCell._column;
+            int row = currentCell.getRow();
+            int column = _currentCell.getColumn();
 
-            if (row == neighbourCell._row)
+            if (row == neighbourCell.getRow())
             {
-                column = neighbourCell._column > column ? neighbourCell._column - 1 : neighbourCell._column + 1;
+                column = neighbourCell.getColumn() > column ? neighbourCell.getColumn() - 1 : neighbourCell.getColumn() + 1;
             }
-            else if (column == neighbourCell._column)
+            else if (column == neighbourCell.getColumn())
             {
-                row = neighbourCell._row > row ? neighbourCell._row - 1 : neighbourCell._row + 1;
+                row = neighbourCell.getRow() > row ? neighbourCell.getRow() - 1 : neighbourCell.getRow() + 1;
             }
 
             foreach (Cell wall in _mazeWalls)
             {
-                if (wall._row == row && wall._column == column)
+                if (wall.getRow() == row && wall.getColumn() == column)
                 {
-                    wall._isWall = false;
+                    wall.setWall(false);
                 }
             }
-            var toBeRemovedWall = _mazeWalls.Find(wall => !wall._isWall);
+            var toBeRemovedWall = _mazeWalls.Find(wall => !wall.isWall());
             _mazeCells.Add(toBeRemovedWall);
             _mazeWalls.Remove(toBeRemovedWall);
         }
@@ -108,7 +113,7 @@ namespace MazeForm
 
             do
             {
-                _currentCell._isVisited = true;
+                _currentCell.setVisited(true);
                 Cell neighbourCell = getRandomNeighbour();
 
                 if (neighbourCell != null)
@@ -133,12 +138,12 @@ namespace MazeForm
         {
             foreach (Cell wall in _mazeWalls)
             {
-                _maze[wall._row, wall._column] = wall;
+                _maze[wall.getRow(), wall.getColumn()] = wall;
             }
 
             foreach (Cell cell in _mazeCells)
             {
-                _maze[cell._row, cell._column] = cell;
+                _maze[cell.getRow(), cell.getColumn()] = cell;
 
             }
         }
@@ -149,9 +154,9 @@ namespace MazeForm
             if (output == "console")
             {
 
-                for (int i = 0; i < _length; ++i)
+                for (int i = 0; i < length; ++i)
                 {
-                    for (int j = 0; j < _length; ++j)
+                    for (int j = 0; j < length; ++j)
                     {
                         Console.Write(_maze[i, j]);
                     }
@@ -162,9 +167,9 @@ namespace MazeForm
             {
                 using (var writer = File.CreateText(output))
                 {
-                    for (int i = 0; i < _length; ++i)
+                    for (int i = 0; i < length; ++i)
                     {
-                        for (int j = 0; j < _length; ++j)
+                        for (int j = 0; j < length; ++j)
                         {
                             writer.Write(_maze[i, j]);
                         }

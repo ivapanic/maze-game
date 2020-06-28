@@ -14,16 +14,46 @@ namespace MazeForm
 
     class Cell
     {
-        public bool _isVisited;
-        public bool _isWall;
-        public int _row, _column;
+        private bool _isVisited;
+        private bool _isWall;
+        private int _row, _column;
   
         public Cell(int row, int column)
         {
             _row = row;
             _column = column;
             _isVisited = false;
-            _isWall = false;
+            setWall(false);
+        }
+
+        public void setWall(bool val)
+        {
+            _isWall = val;
+        }
+
+        public void setVisited(bool val)
+        {
+            _isVisited = val;
+        }
+
+        public bool isVisited()
+        {
+            return _isVisited;
+        }
+
+        public bool isWall()
+        {
+            return _isWall;
+        }
+
+        public int getRow()
+        {
+            return _row;
+        }
+
+        public int getColumn()
+        {
+            return _column;
         }
 
         public Cell()

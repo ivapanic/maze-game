@@ -94,6 +94,7 @@
             this.Name = "MazeGame";
             this.Text = "Maze Game";
             this.Load += new System.EventHandler(this.MazeGame_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MazeGame_KeyDown);
             this.optionPanel.ResumeLayout(false);
             this.optionPanel.PerformLayout();
             this.ResumeLayout(false);

@@ -14,7 +14,8 @@ namespace MazeForm
     public partial class MazeGame : Form
     {
         public String[] text;
-        Button[,] mazeButtons = new Button[Maze._length, Maze._length];
+        bool gameStarted;
+        Button[,] mazeButtons = new Button[Maze.length, Maze.length];
         Maze maze;
 
 
@@ -30,6 +31,7 @@ namespace MazeForm
             string filename = @".\output.txt";
             maze.print(filename);
             text = File.ReadAllLines(filename);
+            gameStarted = true;
         }
 
         private void setButtonColor(Button button, Color foreColor, Color backColor, Color borderColor)
@@ -53,7 +55,6 @@ namespace MazeForm
                 if (!(btn.BackColor == Color.ForestGreen))
                     setButtonColor(btn, Color.BlueViolet, Color.BlueViolet, Color.BlueViolet);
            
-
 
             if (btn.BackColor == Color.Red)
             {
@@ -88,9 +89,9 @@ namespace MazeForm
 
         private void showMaze()
         {
-            for (int i = 0; i < Maze._length; ++i)
+            for (int i = 0; i < Maze.length; ++i)
             {
-                for (int j = 0; j < Maze._length; ++j)
+                for (int j = 0; j < Maze.length; ++j)
                 {
                     Button button = new Button();
                     button.FlatStyle = FlatStyle.Flat;
@@ -107,7 +108,7 @@ namespace MazeForm
                             button.Enabled = true;
 
                         }
-                        else if (i == Maze._length - 2 && j == Maze._length - 1)
+                        else if (i == Maze.length - 2 && j == Maze.length - 1)
                         {
                             setButtonColor(button, Color.ForestGreen, Color.ForestGreen, Color.ForestGreen);
                         }
@@ -162,6 +163,38 @@ namespace MazeForm
         private void mazePanel_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void MazeGame_KeyDown(object sender, KeyEventArgs e)
+        {
+            Tuple<int, int> coordinates = new Tuple<int, int>(1, 0);
+            enableAllButtons(true);
+
+            if (e.KeyCode == Keys.Up)
+            {
+                if (maze.getMaze()[coordinates.Item1, coordinates.Item2 - 1].isWall())
+                {
+                    mazeButtons[coordinates.Item1, coordinates.Item2].BackColor = Color.Red;
+                }
+                else
+                {
+                    if (!(mazeButtons[coordinates.Item1, coordinates.Item2 - 1].BackColor == Color.ForestGreen))
+                        setButtonColor(mazeButtons[coordinates.Item1, coordinates.Item2 - 1], Color.BlueViolet, Color.BlueViolet, Color.BlueViolet);
+                }
+            }
+            if (e.KeyCode == Keys.Down)
+            {
+                if (maze.getMaze()[coordinates.Item1, coordinates.Item2 + 1].isWall())
+                {
+                    mazeButtons[coordinates.Item1, coordinates.Item2].BackColor = Color.Red;
+                }
+                else
+                {
+                    if (!(mazeButtons[coordinates.Item1, coordinates.Item2 + 1].BackColor == Color.ForestGreen))
+                        setButtonColor(mazeButtons[coordinates.Item1, coordinates.Item2 + 1], Color.BlueViolet, Color.BlueViolet, Color.BlueViolet);
+                }
+            }
+   
         }
     }
 }
