@@ -70,7 +70,6 @@
             this.mazePanel.Name = "mazePanel";
             this.mazePanel.Size = new System.Drawing.Size(629, 624);
             this.mazePanel.TabIndex = 1;
-            this.mazePanel.Paint += new System.Windows.Forms.PaintEventHandler(this.mazePanel_Paint);
             // 
             // menuStrip1
             // 
@@ -93,8 +92,6 @@
             this.MaximizeBox = false;
             this.Name = "MazeGame";
             this.Text = "Maze Game";
-            this.Load += new System.EventHandler(this.MazeGame_Load);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MazeGame_KeyDown);
             this.optionPanel.ResumeLayout(false);
             this.optionPanel.PerformLayout();
             this.ResumeLayout(false);
