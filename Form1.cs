@@ -19,7 +19,7 @@ namespace MazeForm
         Maze maze;
         Dictionary<char, int> coordinates = new Dictionary<char, int>();
         char x = 'x'; char y = 'y';
-        bool triggered_defeat;
+        bool endGame;
 
         public MazeGame()
         {
@@ -34,7 +34,7 @@ namespace MazeForm
             maze.print(filename);
             text = File.ReadAllLines(filename);
             coordinates[x] = 1; coordinates[y] = 0;
-            triggered_defeat = false;
+            endGame = false;
         }
 
         private void showMaze()
@@ -94,17 +94,17 @@ namespace MazeForm
         {
             if (buttonColor == Color.Red)
             {
-                enableAllButtons(false);
                 controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
                 controlButton.Text = "YOU LOST\nRestart?";
-                triggered_defeat = true;
+                enableAllButtons(false);
+                endGame = true;
             }
             else if (buttonColor == Color.ForestGreen)
             {
                 controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
                 controlButton.Text = "YOU WON\nRestart?";
                 enableAllButtons(false);
-
+                endGame = true;
             }
 
         }
@@ -135,7 +135,7 @@ namespace MazeForm
             if (btn.BackColor == Color.Black)
                 btn.BackColor = Color.Red;
             else
-                if (!(btn.BackColor == Color.ForestGreen))
+                if (!(btn.BackColor == Color.ForestGreen) && !(btn.BackColor == Color.Blue))
                 setButtonColor(btn, Color.BlueViolet, Color.BlueViolet, Color.BlueViolet);
 
             outcome(btn.BackColor);
@@ -202,7 +202,7 @@ namespace MazeForm
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (triggered_defeat) { return false; }
+            if (endGame) { return false; }
             else if (keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Left || keyData == Keys.Right)
             {
                 try
