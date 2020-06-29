@@ -15,7 +15,6 @@ namespace MazeForm
     public partial class MazeGame : Form
     {
         public String[] text;
-        bool gameStarted = false;
         Button[,] mazeButtons;
         Maze maze;
         Dictionary<char, int> coordinates = new Dictionary<char, int>();
