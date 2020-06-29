@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace MazeForm
 {
@@ -15,21 +16,24 @@ namespace MazeForm
     {
         public String[] text;
         bool gameStarted = false;
-        Button[,] mazeButtons = new Button[Maze.length, Maze.length];
+        Button[,] mazeButtons;
         Maze maze;
         Dictionary<char, int> coordinates = new Dictionary<char, int>();
         char x = 'x'; char y = 'y';
         bool endGame;
+        Mode mode;
+        bool firstGeneration = true;
 
         public MazeGame()
         {
             InitializeComponent();
         }
 
-        public void mazeInit()
+        public void mazeInit(Mode mode)
         {
-            maze = new Maze();
+            maze = new Maze(mode);
             maze.mazeGeneration();
+            mazeButtons = new Button[Maze.length, Maze.length];
             string filename = @".\output.txt";
             maze.print(filename);
             text = File.ReadAllLines(filename);
@@ -45,9 +49,10 @@ namespace MazeForm
                 {
                     Button button = new Button();
                     button.FlatStyle = FlatStyle.Flat;
-                    button.Height = 20; button.Width = 20;
+                    button.Height = 620 / Maze.length; 
+                    button.Width = 620/ Maze.length;
                     button.Margin = new Padding(0, 0, 0, 0);
-                    button.Location = new Point(i * 20, j * 20);
+                    button.Location = new Point(i * button.Height, j * button.Width);
                     button.Enabled = false;
 
                     if (text[i][j] == 'X')
@@ -144,6 +149,14 @@ namespace MazeForm
         private void controlButton_Click(object sender, EventArgs e)
         {
             mazePanel.Controls.Clear();
+            showModeButtons(true);
+            
+            if (!firstGeneration)
+            {
+                controlButton.Enabled = true;
+                mazeInit(mode);
+                showMaze();
+            }
 
             if (controlButton.Text == "YOU LOST" || controlButton.Text == "YOU WON")
             {
@@ -151,10 +164,8 @@ namespace MazeForm
                 mazePanel.Refresh();
             }
 
-            mazeInit();
-            showMaze();
-            controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            controlButton.Text = "Use cursor or arrows to get to the end of the maze without touching any walls!";
+            controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            controlButton.Text = "Regenerate the maze!";
         }
 
         private void controlButton_KeyDown(object sender, KeyEventArgs e)
@@ -217,6 +228,68 @@ namespace MazeForm
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+     
+        private void showModeButtons(bool visible)
+        {
+            modeButton.Visible = visible;
+            easyModeButton.Visible = visible;
+            intermediateModeButton.Visible = visible;
+            hardModeButton.Visible = visible;
+
+        }
+
+        private void startMazeMode(Mode mode)
+        {
+            showModeButtons(false);
+            mazeInit(mode);
+            showMaze();
+            firstGeneration = false;
+            controlButton.Enabled = true;
+            changeModeToolStripMenuItem.Enabled = true;
+            controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            controlButton.Text = "Regenerate the maze!";
+
+        }
+
+        private void easyModeButton_Click(object sender, EventArgs e)
+        {
+            mode = Mode.EASY;
+            startMazeMode(mode);
+        }
+
+        private void intermediateModeButton_Click(object sender, EventArgs e)
+        {
+            mode = Mode.INTERMEDIATE;
+            startMazeMode(mode);
+        }
+
+        private void hardModeButton_Click(object sender, EventArgs e)
+        {
+            mode = Mode.HARD;
+            startMazeMode(mode);
+        }
+
+        private void comfyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mazePanel.Controls.Clear();
+            mode = Mode.EASY;
+            startMazeMode(mode);
+        }
+
+        private void normieToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mazePanel.Controls.Clear();
+            mode = Mode.INTERMEDIATE;
+            startMazeMode(mode);
+        }
+
+        private void hardcoreToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mazePanel.Controls.Clear();
+            mode = Mode.HARD;
+            startMazeMode(mode);
         }
     }
 }

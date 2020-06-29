@@ -12,10 +12,17 @@ using System.Xml.Schema;
 
 namespace MazeForm
 {
+
+    public enum Mode
+    {
+        EASY = 21,
+        INTERMEDIATE = 31,
+        HARD = 41,
+    }
     class Maze
     {
 
-        public static int length = 31;
+        public static int length;
         private Cell[,] _maze;
         List<Cell> _mazeWalls;
         List<Cell> _mazeCells;
@@ -29,8 +36,21 @@ namespace MazeForm
             return _maze;
         }
 
-        public Maze()
+        public Maze(Mode mode)
         {
+            switch (mode)
+            {
+                case (Mode.INTERMEDIATE):
+                    length = (int)Mode.INTERMEDIATE;
+                    break;
+                case (Mode.HARD):
+                    length = (int)Mode.HARD;
+                    break;
+                default:
+                    length = (int)Mode.EASY;
+                    break;
+            }
+
             _mazeCells = new List<Cell>();
             _mazeWalls = new List<Cell>();
 
