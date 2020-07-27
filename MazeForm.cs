@@ -30,7 +30,6 @@ namespace MazeForm
         Cell[,] mazeCells;
         MazeButton previousButton;
         Dictionary<char, int> coordinates = new Dictionary<char, int>();
-        char x = 'x'; char y = 'y';
         bool endGame;
         Mode mode;
         bool firstGeneration = true;
@@ -62,7 +61,7 @@ namespace MazeForm
             maze = new Maze(mode);
             mazeCells = maze.mazeGeneration();
             mazeButtons = new MazeButton[Maze.length, Maze.length];
-            coordinates[x] = 1; coordinates[y] = 0;
+            coordinates['x'] = 1; coordinates['y'] = 0;
             previousButton = new MazeButton();
             previousButton.X = 1; previousButton.Y = 0;
 
