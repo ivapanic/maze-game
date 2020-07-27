@@ -275,7 +275,7 @@ namespace MazeForm
                 {
                     walkThroughMazeButtonsKeyboard(mazeButtons[1, 0], keyData);
                 }
-                catch (System.Collections.Generic.KeyNotFoundException)
+                catch (System.NullReferenceException)
                 {
                     return false;
                 };

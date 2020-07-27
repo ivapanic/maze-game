@@ -19,8 +19,6 @@ There are 3 game modes available: comfy (easy), normie (normal) and hardcore (ha
 
 
 
-6/29/2020 todo: remove debug output file
-
 
 
 
