@@ -271,14 +271,9 @@ namespace MazeForm
             if (endGame) { return false; }
             else if (keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Left || keyData == Keys.Right)
             {
-                try
-                {
-                    walkThroughMazeButtonsKeyboard(mazeButtons[1, 0], keyData);
-                }
-                catch (System.NullReferenceException)
-                {
-                    return false;
-                };
+
+                if (!(mazeButtons is null))
+                        walkThroughMazeButtonsKeyboard(mazeButtons[1, 0], keyData);
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
