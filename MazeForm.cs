@@ -5,39 +5,83 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using System.Xml.Schema;
 
 namespace MazeForm
 {
     public partial class MazeGame : Form
     {
-        public String[] text;
-        Button[,] mazeButtons;
+        public Color _startColor { get; set; }
+        public Color _endColor { get; set; }
+        public Color _wallColor { get; set; }
+        public Color _pathColor { get; set; }
+        public Color _visitedPathColor { get; set; }
+        public Color _visitedWallColor { get; set; }
+
+        const int LENGTH = 620;
+
+        MazeButton[,] mazeButtons;
         Maze maze;
+        Cell[,] mazeCells;
+        MazeButton previousButton;
         Dictionary<char, int> coordinates = new Dictionary<char, int>();
         char x = 'x'; char y = 'y';
         bool endGame;
         Mode mode;
         bool firstGeneration = true;
 
+        public class MazeButton : Button
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
+
+        }
+
         public MazeGame()
         {
             InitializeComponent();
         }
 
+        public void setMazeColorScheme(Color startColor, Color endColor, Color wallColor, Color pathColor, Color visitedPathColor, Color visitedWallColor)
+        {
+            _startColor = startColor;
+            _endColor = endColor;
+            _wallColor = wallColor;
+            _pathColor = pathColor;
+            _visitedPathColor = visitedPathColor;
+            _visitedWallColor = visitedWallColor;
+        }
+
         public void mazeInit(Mode mode)
         {
             maze = new Maze(mode);
-            maze.mazeGeneration();
-            mazeButtons = new Button[Maze.length, Maze.length];
-            string filename = @".\output.txt";
-            maze.print(filename);
-            text = File.ReadAllLines(filename);
+            mazeCells = maze.mazeGeneration();
+            mazeButtons = new MazeButton[Maze.length, Maze.length];
             coordinates[x] = 1; coordinates[y] = 0;
+            previousButton = new MazeButton();
+            previousButton.X = 1; previousButton.Y = 0;
+
+            setMazeColorScheme(Color.Blue, Color.ForestGreen, Color.Black, Color.White, Color.BlueViolet, Color.Red);
+
             endGame = false;
+            showMaze();
+        }
+
+        private void startMazeMode(Mode mode)
+        {
+            showModeButtons(false);
+            mazeInit(mode);
+            firstGeneration = false;
+            controlButton.Enabled = true;
+            changeModeToolStripMenuItem.Enabled = true;
+            controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            controlButton.Text = "Regenerate the maze!";
+
         }
 
         private void showMaze()
@@ -46,36 +90,17 @@ namespace MazeForm
             {
                 for (int j = 0; j < Maze.length; ++j)
                 {
-                    Button button = new Button();
+                    MazeButton button = new MazeButton();
+                    button.X = i; button.Y = j;
                     button.FlatStyle = FlatStyle.Flat;
-                    button.Height = 620 / Maze.length; 
-                    button.Width = 620/ Maze.length;
+                    button.Height = LENGTH / Maze.length; 
+                    button.Width = LENGTH / Maze.length;
                     button.Margin = new Padding(0, 0, 0, 0);
                     button.Location = new Point(i * button.Height, j * button.Width);
                     button.Enabled = false;
+                   
+                    button = mazeColoring(mazeCells, i, j, button, _startColor, _endColor, _wallColor, _pathColor);
 
-                    if (text[i][j] == 'X')
-                    {
-                        if (i == 1 && j == 0)
-                        {
-                            setButtonColor(button, Color.Blue, Color.Blue, Color.Blue);
-                            button.Enabled = true;
-
-                        }
-                        else if (i == Maze.length - 2 && j == Maze.length - 1)
-                        {
-                            setButtonColor(button, Color.ForestGreen, Color.ForestGreen, Color.ForestGreen);
-                            
-                        }
-                        else
-                        {
-                            setButtonColor(button, Color.Black, Color.Black, Color.Black);
-                        }
-                    }
-                    else
-                    {
-                        setButtonColor(button, Color.White, Color.White, Color.White);
-                    }
                     mazeButtons[i, j] = button;
                     mazePanel.Controls.Add(button);
                 }
@@ -86,6 +111,29 @@ namespace MazeForm
             }
         }
 
+        private MazeButton mazeColoring(Cell[,] mazeCells, int i, int j, MazeButton button, Color startColor, Color endColor, Color wallColor, Color pathColor)
+        {
+            if (mazeCells[i, j].isWall())
+            {
+                if (mazeCells[i, j].isStart())
+                {
+                    setButtonColor(button, startColor, startColor, startColor);
+                    button.Enabled = true;
+
+                }
+                else if (mazeCells[i, j].isEnd())
+                    setButtonColor(button, endColor, endColor, endColor);
+
+                else
+                    setButtonColor(button, wallColor, wallColor, wallColor);
+            }
+            else
+                setButtonColor(button, pathColor, pathColor, pathColor);
+
+            return button;
+        }
+
+
         private void setButtonColor(Button button, Color foreColor, Color backColor, Color borderColor)
         {
             button.BackColor = backColor;
@@ -94,16 +142,16 @@ namespace MazeForm
         }
 
 
-        void outcome(Color buttonColor)
+        private void outcome(MazeButton button)
         {
-            if (buttonColor == Color.Red)
+            if (mazeCells[button.X, button.Y].isWall() && !mazeCells[button.X, button.Y].isStart() && !mazeCells[button.X, button.Y].isEnd())
             {
                 controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
                 controlButton.Text = "YOU LOST\nRestart?";
                 enableAllButtons(false);
                 endGame = true;
             }
-            else if (buttonColor == Color.ForestGreen)
+            else if (mazeCells[button.X, button.Y].isEnd() && button.Y == previousButton.Y + 1)
             {
                 controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 20F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
                 controlButton.Text = "YOU WON\nRestart?";
@@ -130,19 +178,23 @@ namespace MazeForm
 
         private void btn_MouseEnter(object sender, EventArgs e)
         {
-            var btn = (Button)sender;
-            if (btn.BackColor == Color.Blue)
+            var button = (MazeButton)sender;
+            if (button.BackColor == _startColor)
             {
                 enableAllButtons(true);
             }
 
-            if (btn.BackColor == Color.Black)
-                btn.BackColor = Color.Red;
+            if (button.BackColor == _wallColor)
+                button.BackColor =_visitedWallColor;
             else
-                if (!(btn.BackColor == Color.ForestGreen) && !(btn.BackColor == Color.Blue))
-                setButtonColor(btn, Color.BlueViolet, Color.BlueViolet, Color.BlueViolet);
+                if (!(button.BackColor == _startColor) && !(button.BackColor == _endColor) && (Math.Abs(button.X - previousButton.X) == 1 || Math.Abs(button.Y - previousButton.Y) == 1))
+                {
+                    setButtonColor(button, _visitedPathColor, _visitedPathColor, _visitedPathColor);
+                    previousButton = button;
+                }
 
-            outcome(btn.BackColor);
+            outcome(button);
+
         }
 
         private void controlButton_Click(object sender, EventArgs e)
@@ -153,8 +205,6 @@ namespace MazeForm
             if (!firstGeneration)
             {
                 controlButton.Enabled = true;
-                mazeInit(mode);
-                showMaze();
             }
 
             if (controlButton.Text == "YOU LOST" || controlButton.Text == "YOU WON")
@@ -162,6 +212,8 @@ namespace MazeForm
                 Array.Clear(mazeButtons, 0, mazeButtons.Length);
                 mazePanel.Refresh();
             }
+
+            startMazeMode(mode);
 
             controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             controlButton.Text = "Regenerate the maze!";
@@ -175,38 +227,42 @@ namespace MazeForm
             }
         }
 
-        void walkThroughMazeButtons(Button button, Dictionary<char, int> coordinates, Keys keyData)
+        private void walkThroughMazeButtonsKeyboard(MazeButton button, Keys keyData)
         {
-            switch (keyData)
-            {
-                case (Keys.Up):
-                    coordinates[y] -= 1;
-                    break;
-                case (Keys.Down):
-                    coordinates[y] += 1;
-                    break;
-                case (Keys.Left):
-                    coordinates[x] -= 1;
-                    break;
-                case (Keys.Right):
-                    coordinates[x] += 1;
-                    break;
-            }
-
-            if (maze.getMaze()[coordinates[x], coordinates[y]].isWall() && coordinates[x] != Maze.length - 2 && coordinates[y] != Maze.length - 1)
-            {
-                mazeButtons[coordinates[x], coordinates[y]].BackColor = Color.Red;
-                outcome(Color.Red);
-            }
+            if (maze.getMaze()[button.X, button.Y].isStart() && keyData == Keys.Up)
+                return;
             else
             {
-                if (!(mazeButtons[coordinates[x], coordinates[y]].BackColor == Color.ForestGreen))
-                    setButtonColor(mazeButtons[coordinates[x], coordinates[y]], Color.BlueViolet, Color.BlueViolet, Color.BlueViolet);
-            }
+                switch (keyData)
+                {
+                    case (Keys.Up):
+                        button.Y -= 1;
+                        break;
+                    case (Keys.Down):
+                        button.Y += 1;
+                        break;
+                    case (Keys.Left):
+                        button.X -= 1;
+                        break;
+                    case (Keys.Right):
+                        button.X += 1;
+                        break;
+                }
 
-            if (coordinates[x] == Maze.length - 2 && coordinates[y] == Maze.length - 1)
-            {
-                outcome(Color.ForestGreen);
+                if (!maze.getMaze()[button.X, button.Y].isEnd() && !maze.getMaze()[button.X, button.Y].isStart())
+                {
+                    if (maze.getMaze()[button.X, button.Y].isWall())
+                    {
+                        setButtonColor(mazeButtons[button.X, button.Y], _visitedWallColor, _visitedWallColor, _visitedWallColor);
+                    }
+                    else
+                    {
+                        setButtonColor(mazeButtons[button.X, button.Y], _visitedPathColor, _visitedPathColor, _visitedPathColor);
+                    }
+                }
+
+                outcome(mazeButtons[button.X, button.Y]);
+                previousButton = mazeButtons[button.X, button.Y];
             }
         }
 
@@ -217,12 +273,11 @@ namespace MazeForm
             {
                 try
                 {
-                    walkThroughMazeButtons(mazeButtons[coordinates[x], coordinates[y]], coordinates, keyData);
+                    walkThroughMazeButtonsKeyboard(mazeButtons[1, 0], keyData);
                 }
-                catch (IndexOutOfRangeException) 
+                catch (System.Collections.Generic.KeyNotFoundException)
                 {
-                    coordinates[x] = 1; coordinates[y] = 0;
-                    
+                    return false;
                 };
             }
 
@@ -236,19 +291,6 @@ namespace MazeForm
             easyModeButton.Visible = visible;
             intermediateModeButton.Visible = visible;
             hardModeButton.Visible = visible;
-
-        }
-
-        private void startMazeMode(Mode mode)
-        {
-            showModeButtons(false);
-            mazeInit(mode);
-            showMaze();
-            firstGeneration = false;
-            controlButton.Enabled = true;
-            changeModeToolStripMenuItem.Enabled = true;
-            controlButton.Font = new System.Drawing.Font("Microsoft PhagsPa", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            controlButton.Text = "Regenerate the maze!";
 
         }
 

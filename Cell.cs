@@ -15,15 +15,53 @@ namespace MazeForm
     class Cell
     {
         private bool _isVisited;
+        private bool _isStart;
+        private bool _isEnd;
         private bool _isWall;
         private int _row, _column;
   
         public Cell(int row, int column)
         {
-            _row = row;
-            _column = column;
-            _isVisited = false;
+            setRow(row);
+            setColumn(column);
+        }
+
+        public Cell()
+        {
+            setVisited(false);
             setWall(false);
+            setStart(false);
+            setEnd(false);
+        }
+
+        public void setRow(int row)
+        {
+            _row = row;
+        }
+
+        public void setColumn(int column)
+        {
+            _column = column;
+        }
+
+        public void setStart(bool val)
+        {
+            _isStart = val;
+        }
+
+        public bool isStart()
+        {
+            return _isStart;
+        }
+
+        public void setEnd(bool val)
+        {
+            _isEnd = val;
+        }
+
+        public bool isEnd()
+        {
+            return _isEnd;
         }
 
         public void setWall(bool val)
@@ -54,12 +92,6 @@ namespace MazeForm
         public int getColumn()
         {
             return _column;
-        }
-
-        public Cell()
-        {
-            _isVisited = false;
-            _isWall = false;
         }
 
         public override string ToString()

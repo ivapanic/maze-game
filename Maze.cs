@@ -25,7 +25,7 @@ namespace MazeForm
         public static int length;
         private Cell[,] _maze;
         List<Cell> _mazeWalls;
-        List<Cell> _mazeCells;
+        List<Cell> _mazePaths;
         Cell _currentCell;
         Stack<Cell> _cellStack;
 
@@ -51,7 +51,7 @@ namespace MazeForm
                     break;
             }
 
-            _mazeCells = new List<Cell>();
+            _mazePaths = new List<Cell>();
             _mazeWalls = new List<Cell>();
 
             for (var i = 0; i < length; ++i)
@@ -61,12 +61,17 @@ namespace MazeForm
                     Cell cell = new Cell(i, j);
                     if (i % 2 == 0 || j % 2 == 0)
                     {
+                        if (i == 1 && j == 0)
+                            cell.setStart(true);
+                        else if (i == Maze.length - 2 && j == Maze.length - 1)
+                            cell.setEnd(true);
+
                         cell.setWall(true);
                         _mazeWalls.Add(cell);
                     }
                     else
                     {
-                        _mazeCells.Add(cell);
+                        _mazePaths.Add(cell);
                     }
                 }
             }
@@ -89,10 +94,10 @@ namespace MazeForm
         {
             List<Cell> neighbourCells = new List<Cell>();
             Cell southN, northN, eastN, westN;
-            northN = _currentCell.getRow() - 2 > 0 ? _mazeCells.Find(cell => _currentCell.getRow() - 2 == cell.getRow() && _currentCell.getColumn() == cell.getColumn()) : null;
-            southN = _currentCell.getRow() + 2 < length - 1 ? _mazeCells.Find(cell => _currentCell.getRow() + 2 == cell.getRow() && _currentCell.getColumn() == cell.getColumn()) : null;
-            eastN = _currentCell.getColumn() + 2 < length - 1 ? _mazeCells.Find(cell => _currentCell.getRow() == cell.getRow() && _currentCell.getColumn() + 2 == cell.getColumn()) : null;
-            westN = _currentCell.getColumn() - 2 > 0 ? _mazeCells.Find(cell => _currentCell.getRow() == cell.getRow() && _currentCell.getColumn() - 2 == cell.getColumn()) : null;
+            northN = _currentCell.getRow() - 2 > 0 ? _mazePaths.Find(cell => _currentCell.getRow() - 2 == cell.getRow() && _currentCell.getColumn() == cell.getColumn()) : null;
+            southN = _currentCell.getRow() + 2 < length - 1 ? _mazePaths.Find(cell => _currentCell.getRow() + 2 == cell.getRow() && _currentCell.getColumn() == cell.getColumn()) : null;
+            eastN = _currentCell.getColumn() + 2 < length - 1 ? _mazePaths.Find(cell => _currentCell.getRow() == cell.getRow() && _currentCell.getColumn() + 2 == cell.getColumn()) : null;
+            westN = _currentCell.getColumn() - 2 > 0 ? _mazePaths.Find(cell => _currentCell.getRow() == cell.getRow() && _currentCell.getColumn() - 2 == cell.getColumn()) : null;
 
             addNeighbour(neighbourCells, northN, southN, eastN, westN);
             int rand_index = _rand.Next(0, neighbourCells.Count);
@@ -122,13 +127,13 @@ namespace MazeForm
                 }
             }
             var toBeRemovedWall = _mazeWalls.Find(wall => !wall.isWall());
-            _mazeCells.Add(toBeRemovedWall);
+            _mazePaths.Add(toBeRemovedWall);
             _mazeWalls.Remove(toBeRemovedWall);
         }
 
         public Cell[,] mazeGeneration()
         {
-            _currentCell = _mazeCells.ElementAt(0);
+            _currentCell = _mazePaths.ElementAt(0);
             _cellStack.Push(_currentCell);
 
             do
@@ -151,6 +156,7 @@ namespace MazeForm
                 }
             } while (_cellStack.Count > 0);
 
+            mazeVisualisation(_maze);
             return _maze;
         }
 
@@ -161,41 +167,10 @@ namespace MazeForm
                 _maze[wall.getRow(), wall.getColumn()] = wall;
             }
 
-            foreach (Cell cell in _mazeCells)
+            foreach (Cell path in _mazePaths)
             {
-                _maze[cell.getRow(), cell.getColumn()] = cell;
+                _maze[path.getRow(), path.getColumn()] = path;
 
-            }
-        }
-
-        public void print(String output)
-        {
-            mazeVisualisation(_maze);
-            if (output == "console")
-            {
-
-                for (int i = 0; i < length; ++i)
-                {
-                    for (int j = 0; j < length; ++j)
-                    {
-                        Console.Write(_maze[i, j]);
-                    }
-                    Console.WriteLine();
-                }
-            }
-            else 
-            {
-                using (var writer = File.CreateText(output))
-                {
-                    for (int i = 0; i < length; ++i)
-                    {
-                        for (int j = 0; j < length; ++j)
-                        {
-                            writer.Write(_maze[i, j]);
-                        }
-                        writer.WriteLine();
-                    }
-                }
             }
         }
     }
