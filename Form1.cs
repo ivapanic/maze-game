@@ -85,7 +85,6 @@ namespace MazeForm
         
         }
 
-
         private void showMaze()
         {
             for (int i = 0; i < Maze._length; ++i)

@@ -64,7 +64,7 @@
             // 
             // mazePanel
             // 
-            this.mazePanel.BackColor = System.Drawing.SystemColors.Desktop;
+            this.mazePanel.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.mazePanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.mazePanel.Location = new System.Drawing.Point(28, 27);
             this.mazePanel.Name = "mazePanel";
